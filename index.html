@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>¿Qué me pongo?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: one sticky tab strip over single-column study sheets; vocabulary cards are drawn as garment hang tags. */
+:root{
+  --bg:#F2F4F8; --surface:#FFFFFF; --ink:#14213D; --muted:#56627D; --line:#D6DCE8;
+  --accent:#2B4C9B; --accent-ink:#FFFFFF; --accent-soft:#E4EAF8;
+  --thread:#D9482B; --chalk:#FFE9A6;
+  --ok:#177A50; --ok-soft:#DDF3E8; --bad:#B83232; --bad-soft:#FBE4E4;
+  --f-display:"Bricolage Grotesque","Noto Sans KR",system-ui,sans-serif;
+  --f-body:"Noto Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1424; --surface:#172036; --ink:#E7EBF5; --muted:#9BA7C2; --line:#2A3656;
+    --accent:#8AA6FF; --accent-ink:#0E1424; --accent-soft:#1F2C52;
+    --thread:#FF8A66; --chalk:#5A4A12;
+    --ok:#55C990; --ok-soft:#173A2B; --bad:#FF8585; --bad-soft:#442228;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1424; --surface:#172036; --ink:#E7EBF5; --muted:#9BA7C2; --line:#2A3656;
+  --accent:#8AA6FF; --accent-ink:#0E1424; --accent-soft:#1F2C52;
+  --thread:#FF8A66; --chalk:#5A4A12;
+  --ok:#55C990; --ok-soft:#173A2B; --bad:#FF8585; --bad-soft:#442228;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.65;margin:0}
+.wrap{max-width:880px;margin:0 auto;padding-inline:16px;padding-block:20px 72px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.2;text-wrap:balance;margin:0}
+h2{font-size:1.5rem;margin-bottom:6px}
+h3{font-size:1.1rem;margin-bottom:6px}
+p{margin:0 0 10px}
+.muted{color:var(--muted)}
+.es{font-family:var(--f-display);font-weight:600}
+
+/* hero */
+.hero{padding-block:8px 18px}
+.eyebrow{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--thread);font-weight:700;margin-bottom:4px}
+.hero h1{font-size:clamp(2.2rem,8vw,3.4rem);font-weight:800;letter-spacing:-.02em}
+.lead{color:var(--muted);margin-top:6px;max-width:34em}
+.route{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:14px;font-size:.88rem;color:var(--muted)}
+.route b{color:var(--ink)}
+
+/* tabs */
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:6px;overflow-x:auto;padding-block:8px;border-bottom:1px solid var(--line);margin-bottom:20px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:500;font-size:.95rem;padding:7px 14px;border-radius:999px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.tab:focus-visible,.btn:focus-visible,.chip:focus-visible,.opt:focus-visible,.face:focus-visible,.known:focus-visible,.wchip:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--thread);outline-offset:2px}
+
+/* shared controls */
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-block:12px}
+.chip{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.88rem;padding:4px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn{border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:700;font-size:.95rem;padding:8px 16px;border-radius:var(--r);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.spacer{flex:1}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.two>*{min-width:0}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.tip{border-left:4px solid var(--thread);padding:8px 14px;background:var(--surface);border-radius:0 var(--r) var(--r) 0;margin-block:10px}
+.bad{color:var(--bad);text-decoration:line-through}
+.good{color:var(--ok);font-weight:700}
+mark{background:var(--chalk);color:var(--ink);padding:0 3px;border-radius:3px}
+
+/* vocabulary hang tags */
+.tags{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:8px}
+.tag{position:relative;background:var(--surface);border:1.5px solid var(--line);border-radius:20px 20px 8px 8px;min-height:116px;display:flex;flex-direction:column}
+.tag::before{content:"";position:absolute;top:9px;left:50%;width:11px;height:11px;margin-left:-5.5px;border-radius:50%;border:2px solid var(--line);background:var(--bg)}
+.tag.is-known{border-color:var(--ok);background:var(--ok-soft)}
+.face{flex:1;border:0;background:transparent;color:var(--ink);font:inherit;text-align:center;padding:30px 10px 6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.05rem;font-family:var(--f-display);font-weight:600;line-height:1.3}
+.face.ko{font-family:var(--f-body);font-weight:500;font-size:.98rem;color:var(--accent)}
+.known{border:0;border-top:1px dashed var(--line);background:transparent;color:var(--muted);font:inherit;font-size:.78rem;padding:5px;cursor:pointer;border-radius:0 0 6px 6px}
+.is-known .known{color:var(--ok);font-weight:700}
+
+/* structure sheet */
+.step{display:grid;grid-template-columns:auto 1fr;gap:4px 14px}
+.step .n{font-family:var(--f-display);font-weight:800;font-size:1.6rem;color:var(--thread);line-height:1}
+.step p{margin:0}
+.ex{font-family:var(--f-display);font-weight:600}
+
+/* model answers */
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem;margin-block:10px}
+.sel{background:var(--accent-soft);border-radius:3px;padding:0 2px}
+.why{background:var(--chalk);border-radius:3px;padding:0 2px;transition:background .15s,color .15s}
+.con{color:var(--thread);font-weight:700}
+.answer{font-size:1.12rem;line-height:1.95;font-family:var(--f-display);font-weight:600}
+.hide-why .why{color:transparent;background:var(--line);cursor:pointer;user-select:none}
+.hide-why .why.shown{color:inherit;background:var(--chalk)}
+.hide-sel .sel{color:transparent;background:var(--line);cursor:pointer;user-select:none}
+.hide-sel .sel.shown{color:inherit;background:var(--accent-soft)}
+.trans{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);color:var(--muted)}
+
+/* quiz */
+.setlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:10px}
+.setlist>*{min-width:0}
+.setcard{text-align:left;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;padding:14px;border-radius:var(--r);cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.setcard:hover{border-color:var(--accent)}
+.setcard b{font-family:var(--f-display);font-size:1.05rem}
+.setcard .meta{font-size:.82rem;color:var(--muted)}
+.setcard.mock{border-color:var(--thread)}
+.progress{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-block:8px 16px}
+.progress>i{display:block;height:100%;background:var(--accent);transition:width .2s}
+.qhead{display:flex;justify-content:space-between;gap:10px;font-size:.85rem;color:var(--muted)}
+.q{font-size:1.15rem;font-weight:500;margin-block:6px 14px}
+.q .es{font-size:1.25rem}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{text-align:left;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;padding:10px 14px;border-radius:var(--r);cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fillrow{display:flex;gap:8px;flex-wrap:wrap}
+.fillrow input{flex:1 1 180px;min-width:0;font:inherit;font-size:1.05rem;padding:9px 12px;border-radius:var(--r);border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.feedback{margin-top:14px;padding:10px 14px;border-radius:var(--r);border:1.5px solid var(--line)}
+.feedback.ok{border-color:var(--ok);background:var(--ok-soft)}
+.feedback.no{border-color:var(--bad);background:var(--bad-soft)}
+.feedback b{display:block}
+.line{min-height:52px;display:flex;flex-wrap:wrap;gap:6px;padding:8px;border:1.5px dashed var(--line);border-radius:var(--r);margin-bottom:10px;align-items:center}
+.wchip{border:1.5px solid var(--accent);background:var(--accent-soft);color:var(--ink);font:inherit;padding:4px 12px;border-radius:8px;cursor:pointer}
+.wchip:disabled{opacity:.3;cursor:default}
+.bank{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.score{font-family:var(--f-display);font-size:3rem;font-weight:800;color:var(--accent);line-height:1}
+.review{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.review li{padding:8px 12px;border-radius:var(--r);background:var(--bad-soft);border:1px solid var(--bad)}
+
+/* writing */
+textarea{width:100%;min-height:200px;resize:vertical;font:inherit;font-size:1.05rem;line-height:1.7;padding:12px;border-radius:var(--r);border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+select{font:inherit;padding:8px 12px;border-radius:var(--r);border:1.5px solid var(--line);background:var(--surface);color:var(--ink);max-width:100%}
+.prompt{border-left:4px solid var(--accent);padding:6px 14px;background:var(--surface);border-radius:0 var(--r) var(--r) 0}
+.hints{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.hints span{font-size:.85rem;background:var(--accent-soft);border-radius:6px;padding:2px 9px}
+.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.checks li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:.95rem}
+.checks .mk{font-weight:800;color:var(--muted)}
+.checks li.pass .mk{color:var(--ok)}
+.checks small{display:block;color:var(--muted)}
+.warn{margin-top:10px;padding:8px 12px;border-radius:var(--r);background:var(--bad-soft);border:1px solid var(--bad);font-size:.92rem}
+.count{font-size:.85rem;color:var(--muted)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:480px){.tags{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <p class="eyebrow">Español · Escritura · La ropa</p>
+  <h1>¿Qué me pongo?</h1>
+  <p class="lead">상황을 읽고, 알맞은 옷을 고르고, 왜 그 옷인지 설명하는 쓰기 시험을 준비하는 사이트입니다.</p>
+  <p class="route">추천 순서 <span><b>1</b> 어휘 카드</span> <span><b>2</b> 답안 구조</span> <span><b>3</b> 모범답안 읽기</span> <span><b>4</b> 연습문제</span> <span><b>5</b> 쓰기 연습</span></p>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="학습 메뉴">
+  <button class="tab" role="tab" data-tab="vocab" aria-selected="true">어휘 카드</button>
+  <button class="tab" role="tab" data-tab="struct" aria-selected="false">답안 구조·표현</button>
+  <button class="tab" role="tab" data-tab="model" aria-selected="false">모범답안</button>
+  <button class="tab" role="tab" data-tab="quiz" aria-selected="false">연습문제</button>
+  <button class="tab" role="tab" data-tab="write" aria-selected="false">쓰기 연습</button>
+</nav>
+
+<!-- 어휘 -->
+<section id="p-vocab" class="panel" role="tabpanel">
+  <h2>어휘 카드</h2>
+  <p class="muted">카드를 누르면 뜻이 보입니다. 외운 단어는 아래 버튼으로 표시하세요.</p>
+  <div class="bar" id="vcats"></div>
+  <div class="bar">
+    <button class="btn ghost" id="vside" type="button">앞면: 스페인어</button>
+    <button class="btn ghost" id="vshuffle" type="button">섞기</button>
+    <button class="btn ghost" id="vhideknown" type="button" aria-pressed="false">외운 단어 숨기기</button>
+    <span class="spacer"></span>
+    <span class="count" id="vcount"></span>
+  </div>
+  <div class="tags" id="vgrid"></div>
+</section>
+
+<!-- 구조 -->
+<section id="p-struct" class="panel" role="tabpanel" hidden>
+  <h2>답안 구조·표현</h2>
+  <p class="muted">이 시험은 “상황 → 옷 선택 → 이유 설명”이 핵심입니다. 아래 틀대로 쓰면 빠뜨리는 것이 없습니다.</p>
+
+  <div class="stack">
+    <div class="box">
+      <h3>답안 4단계 틀</h3>
+      <div class="stack">
+        <div class="step"><span class="n">1</span><div><b>상황 말하기</b> (장소, 날씨, 행사)
+          <p class="ex">Hoy hace mucho calor y voy a la playa.</p>
+          <p class="ex">Mañana tengo una entrevista de trabajo.</p></div></div>
+        <div class="step"><span class="n">2</span><div><b>옷 고르기</b> (옷 + 색깔, 신발·소품까지)
+          <p class="ex">Me pongo / Voy a ponerme / Llevo / Elijo + 옷</p>
+          <p class="ex">Me pongo un vestido azul y unos zapatos negros.</p></div></div>
+        <div class="step"><span class="n">3</span><div><b>이유 설명하기</b> (최소 2개, 옷마다 이유)
+          <p class="ex">Elijo el abrigo <mark>porque</mark> es muy abrigado.</p>
+          <p class="ex"><mark>Además,</mark> las botas son impermeables.</p></div></div>
+        <div class="step"><span class="n">4</span><div><b>마무리 문장</b>
+          <p class="ex">Por eso, voy a estar cómodo y elegante.</p>
+          <p class="ex">En conclusión, es la mejor opción para hoy.</p></div></div>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="box">
+        <h3>옷을 고를 때 쓰는 동사</h3>
+        <div class="scroll"><table>
+          <tr><th></th><th>ponerse</th><th>llevar</th><th>elegir</th><th>preferir</th></tr>
+          <tr><td>yo</td><td>me pongo</td><td>llevo</td><td>elijo</td><td>prefiero</td></tr>
+          <tr><td>tú</td><td>te pones</td><td>llevas</td><td>eliges</td><td>prefieres</td></tr>
+          <tr><td>él/ella</td><td>se pone</td><td>lleva</td><td>elige</td><td>prefiere</td></tr>
+          <tr><td>nosotros</td><td>nos ponemos</td><td>llevamos</td><td>elegimos</td><td>preferimos</td></tr>
+          <tr><td>vosotros</td><td>os ponéis</td><td>lleváis</td><td>elegís</td><td>preferís</td></tr>
+          <tr><td>ellos</td><td>se ponen</td><td>llevan</td><td>eligen</td><td>prefieren</td></tr>
+        </table></div>
+        <p class="muted" style="margin-top:8px">미래: <span class="ex">voy a ponerme</span> = <span class="ex">me voy a poner</span> (입을 예정이다)</p>
+      </div>
+      <div class="box">
+        <h3>이유를 연결하는 표현</h3>
+        <p><span class="ex">porque</span> ~이기 때문에 (문장 중간)<br>
+        <span class="ex">ya que</span> ~이므로<br>
+        <span class="ex">como</span> ~이니까 (문장 맨 앞)<br>
+        <span class="ex">para + 동사원형</span> ~하기 위해<br>
+        <span class="ex">por eso</span> 그래서 (결과)<br>
+        <span class="ex">es ideal / perfecto para</span> ~에 딱이다</p>
+        <p class="ex">Como hace frío, me pongo un abrigo.</p>
+        <p class="ex">Llevo un paraguas para no mojarme.</p>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="box">
+        <h3>날씨 표현</h3>
+        <p><span class="ex">Hace</span> calor / frío / sol / viento / fresco / buen tiempo / mal tiempo<br>
+        <span class="ex">Llueve</span> (비) · <span class="ex">Nieva</span> (눈)<br>
+        <span class="ex">Está nublado</span> (흐림)<br>
+        <span class="ex">Tengo</span> calor / frío (내가 덥다/춥다)</p>
+        <div class="tip"><span class="bad">Es calor</span> → <span class="good">Hace calor</span><br><span class="bad">Estoy frío</span> → <span class="good">Tengo frío</span></div>
+      </div>
+      <div class="box">
+        <h3>순서·추가·결론 연결어</h3>
+        <p><b>순서</b> primero, luego, después, finalmente, por último<br>
+        <b>추가</b> además, también<br>
+        <b>대조</b> pero, sin embargo, en cambio<br>
+        <b>결과·결론</b> por eso, así, en conclusión</p>
+        <p class="muted">연결어는 최소 3개 쓰면 글이 훨씬 매끄러워 보입니다.</p>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3>형용사 일치 (성·수)</h3>
+      <div class="scroll"><table>
+        <tr><th>단수 남성</th><th>단수 여성</th><th>복수 남성</th><th>복수 여성</th></tr>
+        <tr><td>el abrigo negro</td><td>la camisa negra</td><td>los zapatos negros</td><td>las botas negras</td></tr>
+        <tr><td>el traje elegante</td><td>la falda elegante</td><td>los trajes elegantes</td><td>las faldas elegantes</td></tr>
+        <tr><td>el jersey azul</td><td>la chaqueta azul</td><td>los vaqueros azules</td><td>las zapatillas azules</td></tr>
+      </table></div>
+      <p class="muted" style="margin-top:8px">-o / -a 로 끝나는 형용사는 성별에 맞춰 바뀌고, -e·자음으로 끝나는 형용사(elegante, azul, formal)는 성별이 같습니다. 복수는 -s / -es. 옷이 복수(vaqueros, zapatos, botas)면 동사도 복수 <span class="ex">son</span>.</p>
+    </div>
+
+    <div class="box">
+      <h3>자주 틀리는 것</h3>
+      <div class="stack">
+        <div class="tip"><b>porque / por qué</b><br>이유를 말할 때(대답): <span class="good">porque</span> · 질문할 때: <span class="good">¿Por qué?</span> (두 단어, 악센트)</div>
+        <div class="tip"><b>ser / estar</b><br>옷의 특징: <span class="ex">El abrigo es cómodo.</span> · 내 상태: <span class="ex">Estoy cómodo con este abrigo.</span></div>
+        <div class="tip"><b>관사와 성</b><br><span class="bad">la abrigo</span> → <span class="good">el abrigo</span> · <span class="bad">un camisa</span> → <span class="good">una camisa</span><br>복수로 쓰는 옷: los vaqueros, los pantalones, las gafas, las botas</div>
+        <div class="tip"><b>ponerse 뒤에는 옷만</b><br><span class="bad">Me pongo cómodo</span> (X) → <span class="good">Voy a estar cómodo</span> / <span class="good">Me siento cómodo</span><br><span class="ex">ponerse</span> 뒤에는 옷이 옵니다.</div>
+        <div class="tip"><b>어울린다 · 맞는다</b><br><span class="ex">Esta falda me queda bien.</span> · <span class="ex">Estos zapatos me quedan grandes.</span> · <span class="ex">Combina con mi camisa.</span></div>
+        <div class="tip"><b>문장 끝</b><br>대문자로 시작, 마침표로 끝, 악센트(á é í ó ú ñ)와 ¿ ¡ 를 빠뜨리지 않기.</div>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3>점수를 올리는 체크리스트</h3>
+      <p>□ 상황(날씨·장소)을 먼저 언급했다<br>
+      □ 옷을 3가지 이상 골랐다 (색깔 포함)<br>
+      □ 옷마다 이유를 말했다 (porque 2번 이상)<br>
+      □ 연결어를 3개 이상 썼다<br>
+      □ 형용사를 다양하게 썼다 (cómodo, elegante, ligero, abrigado …)<br>
+      □ 마지막에 한 줄로 마무리했다<br>
+      □ 성·수 일치, 악센트, 마침표를 확인했다</p>
+    </div>
+  </div>
+</section>
+
+<!-- 모범답안 -->
+<section id="p-model" class="panel" role="tabpanel" hidden>
+  <h2>모범답안</h2>
+  <p class="muted">12가지 상황의 예시 답안입니다. 먼저 읽고, 가림 기능으로 스스로 시험해 보세요.</p>
+  <div class="bar" id="mchips"></div>
+  <div class="box">
+    <h3 id="mtitle"></h3>
+    <p class="muted" id="mko"></p>
+    <div class="legend">
+      <span><span class="sel">옷 선택</span></span>
+      <span><span class="why">이유</span></span>
+      <span><span class="con">연결어</span></span>
+    </div>
+    <div class="bar">
+      <button class="btn ghost" id="mhidewhy" type="button" aria-pressed="false">이유 가리기</button>
+      <button class="btn ghost" id="mhidesel" type="button" aria-pressed="false">옷 선택 가리기</button>
+      <button class="btn ghost" id="mtrans" type="button" aria-pressed="false">한국어 번역 보기</button>
+    </div>
+    <p class="answer" id="manswer"></p>
+    <div class="trans" id="mtext" hidden></div>
+    <p class="muted" id="mnote" style="margin-top:10px"></p>
+  </div>
+</section>
+
+<!-- 연습문제 -->
+<section id="p-quiz" class="panel" role="tabpanel" hidden>
+  <div id="qhome">
+    <h2>연습문제</h2>
+    <p class="muted">어휘 세트는 누를 때마다 새 문제가 나옵니다. 한 문제씩 풀고 바로 해설을 확인하세요.</p>
+    <div class="setlist" id="setlist"></div>
+  </div>
+  <div id="qrun" hidden></div>
+</section>
+
+<!-- 쓰기 -->
+<section id="p-write" class="panel" role="tabpanel" hidden>
+  <h2>쓰기 연습</h2>
+  <p class="muted">상황을 고르고 직접 써 보세요. 쓰는 동안 구조·어휘·연결어가 자동으로 점검됩니다. (자동 점검은 연습용 참고입니다.)</p>
+  <div class="bar">
+    <label for="wsel" class="muted">상황</label>
+    <select id="wsel"></select>
+    <button class="btn ghost" id="wrand" type="button">랜덤 상황</button>
+  </div>
+  <div class="prompt" id="wprompt"></div>
+  <div class="hints" id="whints"></div>
+  <div class="bar"><label for="wtext" class="muted">내 답안 (스페인어)</label><span class="spacer"></span><span class="count" id="wcount"></span></div>
+  <textarea id="wtext" lang="es" spellcheck="false" placeholder="Hoy hace mucho calor y ..."></textarea>
+  <div class="two" style="margin-top:14px">
+    <div class="box"><h3>자동 점검</h3><ul class="checks" id="wchecks"></ul><div id="wwarn"></div></div>
+    <div class="box">
+      <h3>도움말</h3>
+      <p class="muted">막히면 아래 시작 문장을 참고하세요.</p>
+      <p class="ex">Hoy hace… y voy a…<br>Me pongo… porque…<br>Además, … es/son…<br>Por eso, voy a estar…</p>
+      <div class="bar"><button class="btn ghost" id="wmodel" type="button" aria-pressed="false">모범답안 보기</button><button class="btn ghost" id="wclear" type="button">지우기</button></div>
+      <div id="wmodelbox" hidden></div>
+    </div>
+  </div>
+</section>
+</div>
+<script>
+var CATS = {ropa:"옷", calzado:"신발·양말", acc:"소품", adj:"묘사 형용사", color:"색깔", mat:"소재", sit:"상황·장소", clima:"날씨·계절", verbo:"동사"};
+var VOCAB = [
+["ropa","la camiseta","티셔츠"],["ropa","la camisa","셔츠"],["ropa","la blusa","블라우스"],
+["ropa","el pantalón","바지 (복수 los pantalones)"],["ropa","los vaqueros","청바지"],["ropa","los pantalones cortos","반바지"],
+["ropa","la falda","치마"],["ropa","el vestido","원피스·드레스"],["ropa","la chaqueta","재킷·점퍼"],
+["ropa","el abrigo","코트·외투"],["ropa","el suéter","스웨터 (= el jersey)"],["ropa","la sudadera","맨투맨·후드티"],
+["ropa","el chándal","트레이닝복"],["ropa","el traje","정장"],["ropa","la corbata","넥타이"],
+["ropa","el impermeable","레인코트·우비"],["ropa","el bañador","(남자) 수영복"],["ropa","el bikini","비키니"],
+["ropa","el pijama","잠옷"],["ropa","el uniforme","교복·유니폼"],["ropa","la ropa de deporte","운동복"],
+["calzado","los zapatos","구두·신발"],["calzado","las zapatillas","운동화"],["calzado","las botas","부츠"],
+["calzado","las botas de agua","장화"],["calzado","las botas de montaña","등산화"],["calzado","las sandalias","샌들"],
+["calzado","las chanclas","슬리퍼·쪼리"],["calzado","los zapatos de tacón","하이힐"],["calzado","los calcetines","양말"],
+["calzado","las medias","스타킹"],
+["acc","el cinturón","벨트"],["acc","el bolso","핸드백"],["acc","la mochila","배낭·책가방"],
+["acc","las gafas de sol","선글라스"],["acc","el sombrero","챙 있는 모자"],["acc","la gorra","야구 모자"],
+["acc","el gorro","털모자·비니"],["acc","la bufanda","목도리"],["acc","los guantes","장갑"],
+["acc","el paraguas","우산"],["acc","el reloj","손목시계"],["acc","el collar","목걸이"],
+["acc","los pendientes","귀걸이"],["acc","la pulsera","팔찌"],["acc","el anillo","반지"],
+["acc","el pañuelo","스카프"],["acc","la cartera","지갑"],
+["adj","cómodo/a","편안한"],["adj","elegante","우아한·세련된"],["adj","formal","격식 있는"],
+["adj","informal","캐주얼한"],["adj","abrigado/a","따뜻한 (보온이 되는)"],["adj","fresco/a","시원한"],
+["adj","ligero/a","가벼운"],["adj","grueso/a","두꺼운"],["adj","ajustado/a","꽉 끼는"],
+["adj","ancho/a","헐렁한·넓은"],["adj","largo/a","긴"],["adj","corto/a","짧은"],
+["adj","de moda","유행하는"],["adj","deportivo/a","스포티한"],["adj","impermeable","방수의"],
+["adj","limpio/a","깨끗한"],["adj","llamativo/a","눈에 띄는"],["adj","apropiado/a","적절한"],
+["adj","práctico/a","실용적인"],["adj","bonito/a","예쁜"],
+["color","rojo/a","빨간색"],["color","azul","파란색"],["color","azul marino","남색"],
+["color","verde","초록색"],["color","amarillo/a","노란색"],["color","negro/a","검은색"],
+["color","blanco/a","흰색"],["color","gris","회색"],["color","marrón","갈색"],
+["color","rosa","분홍색"],["color","naranja","주황색"],["color","morado/a","보라색"],
+["color","beige","베이지색"],["color","claro/a","밝은"],["color","oscuro/a","어두운"],
+["mat","el algodón","면"],["mat","la lana","양모·울"],["mat","el cuero","가죽"],
+["mat","la seda","실크"],["mat","el lino","린넨"],["mat","el poliéster","폴리에스터"],
+["sit","una entrevista de trabajo","면접"],["sit","una boda","결혼식"],["sit","una fiesta","파티"],
+["sit","un cumpleaños","생일"],["sit","la playa","해변"],["sit","la montaña","산"],
+["sit","una excursión","소풍·야외 활동"],["sit","un picnic","피크닉"],["sit","un partido de fútbol","축구 경기"],
+["sit","un concierto","콘서트"],["sit","el primer día de clase","개학 첫날"],["sit","una cena elegante","격식 있는 저녁 식사"],
+["sit","una graduación","졸업식"],["sit","una cita","데이트"],["sit","un museo","박물관"],["sit","un viaje","여행"],
+["clima","Hace calor","덥다"],["clima","Hace frío","춥다"],["clima","Hace sol","해가 쨍쨍하다"],
+["clima","Hace viento","바람이 분다"],["clima","Hace buen tiempo","날씨가 좋다"],["clima","Hace mal tiempo","날씨가 나쁘다"],
+["clima","Hace fresco","선선하다"],["clima","Llueve","비가 온다"],["clima","Nieva","눈이 온다"],
+["clima","Está nublado","흐리다"],["clima","el invierno","겨울"],["clima","el verano","여름"],
+["clima","la primavera","봄"],["clima","el otoño","가을"],
+["verbo","ponerse","입다·착용하다"],["verbo","llevar","입고 있다·가지고 가다"],["verbo","vestirse","옷을 입다"],
+["verbo","quitarse","벗다"],["verbo","probarse","입어 보다"],["verbo","quedar bien","잘 어울리다·잘 맞다"],
+["verbo","elegir","고르다"],["verbo","preferir","더 좋아하다"],["verbo","combinar con","~와 어울리다"],
+["verbo","necesitar","필요하다"],["verbo","usar","쓰다·사용하다"],["verbo","mojarse","젖다"],
+["verbo","protegerse","자신을 보호하다"],["verbo","sentirse","느끼다"]
+];
+
+var MODELS = [
+{id:"entrevista", es:"Una entrevista de trabajo", ko:"내일 사무실에서 면접이 있어요.",
+ a:"Mañana tengo una entrevista de trabajo en una oficina. [[s:Voy a ponerme un traje gris, una camisa blanca y una corbata azul.]] [[c:Primero,]] [[w:elijo el traje porque es formal y elegante.]] [[c:Además,]] [[w:la camisa blanca está limpia y combina con todos los colores.]] [[c:También]] [[s:llevo zapatos negros]] [[w:porque dan buena impresión.]] [[c:Por eso,]] voy a sentirme cómodo y seguro.",
+ t:"내일 사무실에서 면접이 있다. 회색 정장, 흰 셔츠, 파란 넥타이를 입을 것이다. 먼저 정장은 격식 있고 우아해서 골랐다. 또한 흰 셔츠는 깨끗하고 모든 색과 어울린다. 검은 구두도 신을 건데, 좋은 인상을 주기 때문이다. 그래서 편안하고 자신 있게 느낄 것이다.",
+ n:"여학생은 cómoda y segura 로 바꿔 쓰세요."},
+{id:"playa", es:"La playa", ko:"날씨가 아주 덥고 친구들과 해변에 가요.",
+ a:"Hoy hace mucho calor y voy a la playa con mis amigos. [[s:Me pongo un bañador azul, una camiseta blanca y unas chanclas.]] [[w:Elijo una camiseta de algodón porque es ligera y fresca.]] [[c:Además,]] [[s:llevo gafas de sol y una gorra]] [[w:porque el sol es muy fuerte.]] [[c:Por eso,]] no llevo pantalones largos ni zapatos. [[w:Las chanclas son muy cómodas para caminar en la arena.]]",
+ t:"오늘은 아주 더워서 친구들과 해변에 간다. 파란 수영복, 흰 티셔츠, 슬리퍼를 착용한다. 면 티셔츠는 가볍고 시원해서 골랐다. 또한 햇빛이 강해서 선글라스와 야구 모자를 쓴다. 그래서 긴 바지나 신발은 입지 않는다. 슬리퍼는 모래 위를 걷기에 편하다.",
+ n:"la arena = 모래"},
+{id:"nieve", es:"Un día de nieve", ko:"겨울에 산에 눈이 많이 와요.",
+ a:"En invierno nieva mucho en la montaña. [[s:Voy a llevar un abrigo grueso, un gorro, una bufanda, guantes y botas.]] [[w:Elijo el abrigo porque es muy abrigado y protege del frío.]] [[c:También]] [[w:necesito botas impermeables porque la nieve moja los pies.]] [[c:Además,]] [[s:me pongo un suéter de lana debajo]] [[w:ya que la lana es muy cálida.]] [[c:Por eso,]] no voy a pasar frío en la nieve.",
+ t:"겨울에는 산에 눈이 많이 온다. 두꺼운 코트, 털모자, 목도리, 장갑, 부츠를 착용할 것이다. 코트는 아주 따뜻하고 추위를 막아 주어서 골랐다. 또한 눈이 발을 적시므로 방수 부츠가 필요하다. 게다가 양모는 따뜻하니까 안에 양모 스웨터를 입는다. 그래서 눈 속에서도 춥지 않을 것이다.",
+ n:"pasar frío = 추위를 느끼다 · calentito(a)도 자주 쓰는 표현"},
+{id:"boda", es:"Una boda", ko:"봄에 야외에서 열리는 결혼식에 가요.",
+ a:"Voy a una boda en el campo en primavera. [[s:Me pongo un vestido largo de color rosa y unos zapatos de tacón bajo.]] [[w:Elijo un vestido porque es elegante y apropiado para una ceremonia.]] [[c:Además,]] [[w:el color rosa es alegre y no es demasiado llamativo.]] [[c:Como]] va a haber música y mucha gente bailando, [[s:prefiero zapatos de tacón bajo]] [[w:porque son más cómodos que los de tacón alto.]] [[c:Por último,]] [[s:llevo un bolso pequeño y una chaqueta fina]] [[w:por si hace fresco por la noche.]]",
+ t:"봄에 시골(야외)에서 열리는 결혼식에 간다. 분홍색 긴 원피스와 굽 낮은 구두를 신는다. 원피스는 우아하고 예식에 적절해서 골랐다. 또 분홍색은 화사하고 너무 튀지 않는다. 음악이 있고 춤추는 사람이 많을 테니 굽 낮은 구두가 하이힐보다 편해서 더 좋다. 마지막으로 작은 가방과 얇은 재킷을 챙긴다. 밤에 선선할 수 있기 때문이다.",
+ n:"por si + 직설법 = ~할 경우를 대비해서 · 남학생은 traje 와 camisa 로 바꿔서 연습하세요."},
+{id:"cumple", es:"Un cumpleaños", ko:"오늘 밤 가장 친한 친구의 생일 파티에 가요.",
+ a:"Esta noche voy a la fiesta de cumpleaños de mi mejor amigo. [[s:Llevo unos vaqueros negros, una camisa roja y zapatillas blancas.]] [[w:Elijo los vaqueros porque son informales y cómodos para bailar.]] [[c:Además,]] [[w:el rojo es un color divertido y perfecto para una fiesta.]] [[c:También]] [[s:me pongo un reloj]] [[w:porque combina con mi camisa.]] [[c:Por eso,]] voy a estar cómodo toda la noche.",
+ t:"오늘 밤 가장 친한 친구의 생일 파티에 간다. 검은 청바지, 빨간 셔츠, 흰 운동화를 입는다. 청바지는 캐주얼하고 춤추기에 편해서 골랐다. 또한 빨강은 파티에 어울리는 재미있는 색이다. 시계도 차는데 셔츠와 어울리기 때문이다. 그래서 밤새 편할 것이다.",
+ n:""},
+{id:"lluvia", es:"Un día de lluvia", ko:"비가 많이 오고 바람이 불어요.",
+ a:"Hoy llueve mucho y hace viento. [[s:Me pongo un impermeable amarillo, unos pantalones largos y botas de agua.]] [[w:Elijo el impermeable porque no deja pasar el agua.]] [[c:También]] [[s:llevo un paraguas]] [[w:para no mojarme.]] [[c:Además,]] [[w:las botas de agua protegen mis pies de los charcos.]] [[c:Por eso,]] voy a llegar seco a la escuela.",
+ t:"오늘은 비가 많이 오고 바람도 분다. 노란 레인코트, 긴 바지, 장화를 착용한다. 레인코트는 물이 스며들지 않아서 골랐다. 또 젖지 않으려고 우산도 챙긴다. 게다가 장화는 물웅덩이로부터 발을 보호한다. 그래서 마른 채로 학교에 도착할 것이다.",
+ n:"los charcos = 물웅덩이 · 여학생은 seca"},
+{id:"excursion", es:"Una excursión a la montaña", ko:"내일 반 친구들과 산으로 소풍을 가요.",
+ a:"Mañana hacemos una excursión a la montaña con la clase. [[s:Voy a llevar unos pantalones largos, una camiseta de deporte, una sudadera y botas de montaña.]] [[w:Elijo botas de montaña porque vamos a caminar mucho y son resistentes.]] [[c:Además,]] [[s:llevo una sudadera]] [[w:por si hace frío por la tarde.]] [[c:También]] [[s:me pongo una gorra]] [[w:porque hace sol.]] [[c:Por eso,]] voy a estar cómodo y protegido.",
+ t:"내일 반 친구들과 산으로 소풍(하이킹)을 간다. 긴 바지, 운동용 티셔츠, 맨투맨, 등산화를 착용한다. 많이 걸을 것이고 튼튼하기 때문에 등산화를 골랐다. 오후에 추울 수 있으니 맨투맨도 챙긴다. 해가 쨍쨍해서 모자도 쓴다. 그래서 편안하고 보호받는 느낌일 것이다.",
+ n:"resistente = 튼튼한 · protegido(a) = 보호받는"},
+{id:"clase", es:"El primer día de clase", ko:"개학 첫날 좋은 인상을 주고 싶어요.",
+ a:"El primer día de clase quiero causar buena impresión. [[s:Me pongo una camisa limpia, unos pantalones azul marino y zapatillas blancas.]] [[w:Elijo la camisa porque es bonita y no es demasiado formal.]] [[c:Además,]] [[w:los pantalones son cómodos y combinan con todo.]] [[c:Como]] voy a estar sentado muchas horas, [[w:prefiero ropa ancha y fresca.]] [[c:En conclusión,]] [[w:este look es práctico y simpático.]]",
+ t:"개학 첫날 좋은 인상을 주고 싶다. 깨끗한 셔츠, 남색 바지, 흰 운동화를 입는다. 셔츠는 예쁘고 너무 격식 차리지 않아서 골랐다. 또 바지는 편하고 뭐든 잘 어울린다. 몇 시간 동안 앉아 있을 테니 헐렁하고 시원한 옷이 더 좋다. 결론적으로 이 차림은 실용적이고 호감이 간다.",
+ n:"causar buena impresión = 좋은 인상을 주다 · azul marino 는 형용사가 변하지 않아요."},
+{id:"cena", es:"Una cena elegante", ko:"오늘 밤 레스토랑에서 격식 있는 저녁 식사가 있어요.",
+ a:"Esta noche voy a una cena elegante en un restaurante. [[s:Voy a ponerme una camisa blanca, una chaqueta negra y unos zapatos de cuero.]] [[w:Elijo la chaqueta porque es elegante y me queda muy bien.]] [[c:Además,]] [[w:los zapatos de cuero son formales y cómodos.]] [[c:También]] [[s:llevo un cinturón negro]] [[w:porque combina con los zapatos.]] [[c:Por eso,]] voy a estar elegante y relajado.",
+ t:"오늘 밤 레스토랑에서 격식 있는 저녁 식사가 있다. 흰 셔츠, 검은 재킷, 가죽 구두를 착용한다. 재킷은 우아하고 나에게 잘 어울려서 골랐다. 또 가죽 구두는 격식 있고 편하다. 검은 벨트도 하는데 구두와 어울리기 때문이다. 그래서 우아하면서도 편안할 것이다.",
+ n:"me queda muy bien = 나에게 잘 어울린다"},
+{id:"concierto", es:"Un concierto", ko:"이번 토요일 야외 록 콘서트에 가요.",
+ a:"Este sábado voy a un concierto de música rock al aire libre. [[s:Me pongo una camiseta negra, unos vaqueros y unas zapatillas deportivas.]] [[w:Elijo zapatillas deportivas porque voy a estar de pie muchas horas.]] [[c:Además,]] [[w:la camiseta de algodón es fresca y no da calor.]] [[c:También]] [[s:llevo una chaqueta en la mochila]] [[w:por si refresca por la noche.]] [[c:Por eso,]] voy a disfrutar del concierto sin problemas.",
+ t:"이번 토요일 야외 록 콘서트에 간다. 검은 티셔츠, 청바지, 운동화를 입는다. 몇 시간 동안 서 있을 것이므로 운동화를 골랐다. 또 면 티셔츠는 시원하고 덥지 않다. 밤에 쌀쌀해질 경우에 대비해 재킷을 가방에 넣는다. 그래서 문제없이 콘서트를 즐길 것이다.",
+ n:"al aire libre = 야외에서 · de pie = 서서"},
+{id:"graduacion", es:"Una graduación", ko:"금요일에 학교 졸업식이 있어요.",
+ a:"El viernes es mi graduación en el colegio. [[s:Voy a llevar un vestido azul marino y zapatos negros.]] [[w:Elijo el vestido porque es elegante y sencillo.]] [[c:Además,]] [[w:el azul marino combina muy bien con el negro.]] [[c:También]] [[s:me pongo unos pendientes pequeños]] [[w:porque no quiero llevar demasiados accesorios.]] [[c:Por eso,]] voy a estar guapa y cómoda en las fotos.",
+ t:"금요일에 학교 졸업식이 있다. 남색 원피스와 검은 구두를 착용한다. 원피스는 우아하고 단순해서 골랐다. 또 남색은 검정과 아주 잘 어울린다. 작은 귀걸이도 하는데 액세서리를 너무 많이 하고 싶지 않아서다. 그래서 사진 속에서 예쁘고 편안할 것이다.",
+ n:"여학생 기준 문장입니다. 남학생은 traje oscuro, camisa, corbata 로 바꿔 쓰세요."},
+{id:"picnic", es:"Un picnic", ko:"이번 일요일 공원에서 피크닉을 하고 날씨가 좋아요.",
+ a:"Este domingo hacemos un picnic en el parque y hace buen tiempo. [[s:Llevo unos pantalones cortos, una camiseta amarilla y zapatillas.]] [[w:Elijo pantalones cortos porque hace calor y son frescos.]] [[c:Además,]] [[s:me pongo un sombrero]] [[w:porque el sol es fuerte a mediodía.]] [[c:También]] [[w:las zapatillas son ideales para jugar al fútbol.]] [[c:Por eso,]] voy a pasar un día muy agradable.",
+ t:"이번 일요일 공원에서 피크닉을 하고 날씨가 좋다. 반바지, 노란 티셔츠, 운동화를 입는다. 더워서 시원한 반바지를 골랐다. 또 한낮에는 햇빛이 강해서 모자를 쓴다. 운동화는 축구하기에 아주 좋다. 그래서 아주 즐거운 하루를 보낼 것이다.",
+ n:"a mediodía = 한낮에 · agradable = 즐거운, 기분 좋은"}
+];
+
+var WRITE = [
+{id:"entrevista", es:"Mañana tienes una entrevista de trabajo en una oficina.", ko:"내일 사무실에서 면접이 있습니다. 어떤 옷을 입고, 왜 그 옷을 고르는지 쓰세요.", hint:["el traje","la camisa","la corbata","los zapatos","formal","elegante"]},
+{id:"playa", es:"Hace mucho calor y vas a la playa con tus amigos.", ko:"덥고 친구들과 해변에 갑니다. 입을 옷과 이유를 쓰세요.", hint:["el bañador","las chanclas","las gafas de sol","la gorra","ligero","fresco"]},
+{id:"nieve", es:"Nieva mucho y vas a la montaña.", ko:"눈이 많이 오는 산에 갑니다. 입을 옷과 이유를 쓰세요.", hint:["el abrigo","el gorro","la bufanda","los guantes","las botas","abrigado"]},
+{id:"boda", es:"Vas a una boda en primavera.", ko:"봄에 결혼식에 갑니다. 입을 옷과 이유를 쓰세요.", hint:["el vestido","el traje","los zapatos","elegante","apropiado","llamativo"]},
+{id:"cumple", es:"Es la fiesta de cumpleaños de tu mejor amigo.", ko:"가장 친한 친구의 생일 파티에 갑니다. 입을 옷과 이유를 쓰세요.", hint:["los vaqueros","la camisa","las zapatillas","informal","cómodo","divertido"]},
+{id:"lluvia", es:"Llueve mucho y hace viento.", ko:"비가 많이 오고 바람이 붑니다. 입을 옷과 이유를 쓰세요.", hint:["el impermeable","el paraguas","las botas de agua","impermeable","mojarse"]},
+{id:"excursion", es:"Mañana haces una excursión a la montaña con tu clase.", ko:"내일 반 친구들과 산으로 소풍을 갑니다. 입을 옷과 이유를 쓰세요.", hint:["las botas de montaña","la sudadera","la gorra","la mochila","cómodo","resistente"]},
+{id:"clase", es:"Es el primer día de clase en un colegio nuevo.", ko:"새 학교에서 맞는 개학 첫날입니다. 입을 옷과 이유를 쓰세요.", hint:["la camisa","los pantalones","las zapatillas","causar buena impresión","práctico"]},
+{id:"cena", es:"Esta noche vas a una cena elegante en un restaurante.", ko:"오늘 밤 격식 있는 저녁 식사에 갑니다. 입을 옷과 이유를 쓰세요.", hint:["la chaqueta","los zapatos de cuero","el cinturón","formal","quedar bien"]},
+{id:"concierto", es:"Este sábado vas a un concierto al aire libre.", ko:"이번 토요일 야외 콘서트에 갑니다. 입을 옷과 이유를 쓰세요.", hint:["la camiseta","las zapatillas","la chaqueta","de pie","fresco","cómodo"]},
+{id:"graduacion", es:"El viernes es tu graduación.", ko:"금요일이 졸업식입니다. 입을 옷과 이유를 쓰세요.", hint:["el vestido","el traje","los pendientes","la corbata","elegante","sencillo"]},
+{id:"picnic", es:"Este domingo haces un picnic en el parque y hace buen tiempo.", ko:"일요일 공원 피크닉, 날씨가 좋습니다. 입을 옷과 이유를 쓰세요.", hint:["los pantalones cortos","el sombrero","la camiseta","Hace sol","ligero"]},
+{id:"nuevo1", es:"Hace frío y vas a visitar un museo con tu familia.", ko:"추운 날 가족과 박물관에 갑니다. 입을 옷과 이유를 쓰세요.", hint:["el suéter","la chaqueta","los vaqueros","las botas","abrigado","cómodo"]},
+{id:"nuevo2", es:"Vas a jugar un partido de fútbol con tu equipo.", ko:"팀 친구들과 축구 경기를 합니다. 입을 옷과 이유를 쓰세요.", hint:["la ropa de deporte","las zapatillas","los calcetines","deportivo","ligero"]}
+];
+</script>
+<script>
+/* mc: o = options, a = index of correct option. fill: a = accepted answers. order: w = words, a = accepted sentences. */
+var Q_FILL = [
+{t:"fill",q:"Hace frío, por eso me ___ un abrigo. (ponerse, yo)",a:["pongo"],e:"ponerse: yo me pongo."},
+{t:"fill",q:"Mi hermana ___ una falda roja. (llevar)",a:["lleva"],e:"llevar는 규칙동사: ella lleva."},
+{t:"fill",q:"Nosotros nos ___ botas porque llueve. (ponerse)",a:["ponemos"],e:"nosotros nos ponemos."},
+{t:"fill",q:"Los vaqueros son muy ___ . (cómodo)",a:["cómodos"],e:"복수 남성 명사(los vaqueros)에 맞춰 cómodos."},
+{t:"fill",q:"La camisa es ___ . (blanco)",a:["blanca"],e:"여성 단수(la camisa)에 맞춰 blanca."},
+{t:"fill",q:"Llevo unos zapatos ___ . (negro)",a:["negros"],e:"남성 복수에 맞춰 negros."},
+{t:"fill",q:"Elijo la chaqueta ___ porque hace frío. (grueso)",a:["gruesa"],e:"여성 단수에 맞춰 gruesa."},
+{t:"fill",q:"Hoy ___ mucho calor.",a:["hace"],e:"날씨는 hacer 동사: Hace calor."},
+{t:"fill",q:"En invierno ___ mucho en la montaña. (nevar)",a:["nieva"],e:"nevar → nieva (눈이 온다). 3인칭 단수만 씁니다."},
+{t:"fill",q:"Elijo este vestido ___ es elegante.",a:["porque"],e:"이유를 말할 때는 porque."},
+{t:"fill",q:"¿___ eliges esa chaqueta?",a:["Por qué"],e:"질문의 '왜'는 ¿Por qué? (두 단어, 악센트)."},
+{t:"fill",q:"Yo ___ una camiseta azul. (elegir)",a:["elijo"],e:"elegir의 yo형은 elijo (g → j)."},
+{t:"fill",q:"Ella ___ los zapatos negros. (preferir)",a:["prefiere"],e:"preferir는 e → ie: ella prefiere."},
+{t:"fill",q:"Ellos ___ trajes para la boda. (ponerse)",a:["se ponen"],e:"ellos se ponen."},
+{t:"fill",q:"Tú te ___ un sombrero. (ponerse)",a:["pones"],e:"tú te pones."},
+{t:"fill",q:"Vosotros os ___ el uniforme. (ponerse)",a:["ponéis"],e:"vosotros os ponéis (악센트 주의)."},
+{t:"fill",q:"Esta falda me ___ muy bien. (quedar)",a:["queda"],e:"단수 주어(esta falda) → queda."},
+{t:"fill",q:"Estos pantalones me ___ grandes. (quedar)",a:["quedan"],e:"복수 주어(estos pantalones) → quedan."},
+{t:"fill",q:"Voy a ___ un bañador. (ponerse, yo)",a:["ponerme"],e:"ir a + 동사원형, 재귀대명사는 뒤에 붙여 ponerme."},
+{t:"fill",q:"Necesito ___ paraguas porque llueve. (un / una)",a:["un"],e:"el paraguas는 남성 단수."},
+{t:"fill",q:"Llevo ___ gafas de sol. (unos / unas)",a:["unas"],e:"las gafas는 여성 복수."},
+{t:"fill",q:"Me gustan ___ botas negras. (el / la / los / las)",a:["las"],e:"las botas는 여성 복수."},
+{t:"fill",q:"Los trajes son muy ___ . (elegante)",a:["elegantes"],e:"-e로 끝나는 형용사는 복수에 -s만 붙입니다."},
+{t:"fill",q:"Para la playa es mejor llevar ropa ___ . (ligero)",a:["ligera"],e:"ropa는 여성 단수 → ligera."},
+{t:"fill",q:"Tengo ___ y por eso llevo bufanda.",a:["frío"],e:"tener frío = 춥다 (사람이 느끼는 추위)."},
+{t:"fill",q:"El abrigo es muy ___ ; no tengo frío. (abrigado)",a:["abrigado"],e:"abrigado = 보온이 잘 되는."},
+{t:"fill",q:"Me pongo la chaqueta ___ no tener frío.",a:["para"],e:"para + 동사원형 = ~하기 위해서."},
+{t:"fill",q:"Primero me pongo la camisa; ___ , los pantalones. (그다음에)",a:["luego","después","despues"],e:"순서 연결어: luego / después."},
+{t:"fill",q:"Me gusta el vestido, ___ es muy caro. (하지만)",a:["pero"],e:"대조의 연결어 pero."},
+{t:"fill",q:"La entrevista es formal; por eso llevo un ___ . (정장)",a:["traje"],e:"el traje = 정장."},
+{t:"fill",q:"Nosotras ___ uniforme en el colegio. (llevar)",a:["llevamos"],e:"nosotras llevamos."}
+];
+
+var Q_SIT = [
+{t:"mc",q:"Mañana tienes una entrevista de trabajo. ¿Qué ropa es la mejor?",o:["un traje, una camisa blanca y zapatos negros","un bañador y unas chanclas","un chándal y unas zapatillas","unos pantalones cortos y una camiseta"],a:0,e:"면접은 formal 한 차림이 필요합니다. 정장과 구두가 가장 알맞아요."},
+{t:"mc",q:"Hace mucho calor y vas a la playa. ¿Qué eliges?",o:["un abrigo grueso y botas","un bañador, una camiseta ligera y gafas de sol","un traje y una corbata","un suéter de lana y guantes"],a:1,e:"더운 해변에는 가볍고 시원한 옷과 햇빛 차단 소품이 맞습니다."},
+{t:"mc",q:"Nieva mucho en la montaña. ¿Qué te pones?",o:["sandalias y pantalones cortos","un bañador","un abrigo, guantes, gorro y botas","una camiseta y chanclas"],a:2,e:"눈 오는 산에서는 abrigado 하고 impermeable 한 옷이 필요합니다."},
+{t:"mc",q:"Vas a una boda por la tarde. ¿Qué ropa es apropiada?",o:["un chándal","un vestido elegante o un traje","una sudadera y vaqueros rotos","un bañador"],a:1,e:"결혼식은 elegante, formal 한 옷이 apropiado 합니다."},
+{t:"mc",q:"Llueve mucho. ¿Qué es lo mejor?",o:["un impermeable, un paraguas y botas de agua","un vestido de seda y sandalias","una camiseta y chanclas","unas gafas de sol"],a:0,e:"비 오는 날에는 impermeable, paraguas, botas de agua."},
+{t:"mc",q:"Vas a hacer una excursión a la montaña. ¿Qué zapatos eliges?",o:["zapatos de tacón","botas de montaña","sandalias elegantes","zapatos de vestir"],a:1,e:"많이 걷는 야외 활동에는 resistentes y cómodas 한 botas de montaña."},
+{t:"mc",q:"Es la fiesta de cumpleaños de tu amigo (ambiente informal). ¿Qué te pones?",o:["un traje con corbata","unos vaqueros y una camiseta bonita","un impermeable","un pijama"],a:1,e:"친구 생일 파티는 informal 하고 cómodo 한 차림이 알맞습니다."},
+{t:"mc",q:"Vas a un concierto al aire libre en verano. ¿Qué es mejor?",o:["un abrigo de lana","unas zapatillas cómodas y ropa fresca","zapatos de tacón alto","botas de nieve"],a:1,e:"오래 서 있고 여름이므로 zapatillas cómodas, ropa fresca."},
+{t:"mc",q:"Esta noche tienes una cena elegante. ¿Qué eliges?",o:["una chaqueta, una camisa y zapatos de cuero","un chándal","unas chanclas y un bañador","una sudadera vieja"],a:0,e:"격식 있는 저녁 식사 → formal y elegante."},
+{t:"mc",q:"Vas a jugar un partido de fútbol. ¿Qué ropa llevas?",o:["ropa de deporte y zapatillas deportivas","un traje","un vestido largo","un abrigo y bufanda"],a:0,e:"운동할 때는 deportivo 하고 ligero 한 옷."},
+{t:"mc",q:"Hace frío en otoño y visitas un museo. ¿Qué eliges?",o:["un bañador","un suéter, vaqueros y botas","pantalones cortos y chanclas","un chándal de verano"],a:1,e:"선선한 가을 박물관 방문: 따뜻하지만 캐주얼한 차림."},
+{t:"mc",q:"Vas a un picnic en el parque y hace sol. ¿Qué llevas?",o:["una gorra, una camiseta y pantalones cortos","un abrigo grueso","botas de nieve","un traje de lana"],a:0,e:"해가 강한 날에는 gorra y ropa fresca."},
+{t:"mc",q:"Viajas a un país muy frío en diciembre. ¿Qué metes en la maleta?",o:["gorros, guantes y un abrigo grueso","bañadores y sandalias","pantalones cortos y camisetas","gafas de sol solamente"],a:0,e:"추운 나라 여행에는 abrigado 한 옷."},
+{t:"mc",q:"Visitas Sevilla en agosto (mucho calor). ¿Qué eliges?",o:["ropa de lino o algodón, ligera y fresca","un abrigo de lana","un suéter grueso","botas de montaña"],a:0,e:"아주 더운 곳에서는 lino y algodón 처럼 가볍고 시원한 소재."},
+{t:"mc",q:"Tienes clase de educación física. ¿Qué te pones?",o:["un chándal y zapatillas","un vestido de fiesta","un traje","tacones"],a:0,e:"체육 시간에는 ropa deportiva."},
+{t:"mc",q:"Es tu graduación y quieres estar elegante. ¿Qué eliges?",o:["un vestido o un traje oscuro","unos pantalones de pijama","una camiseta vieja","un bañador"],a:0,e:"졸업식은 elegante 한 차림이 알맞습니다."},
+{t:"mc",q:"Vas a pasear con tu perro y llueve. ¿Qué llevas?",o:["un impermeable y botas de agua","gafas de sol y sandalias","un bikini","un sombrero de paja"],a:0,e:"비 오는 날 산책: impermeable, botas de agua."},
+{t:"mc",q:"Es tu primer día en un colegio nuevo. ¿Qué es mejor?",o:["ropa limpia, cómoda y apropiada","ropa muy llamativa y rota","un disfraz","un pijama"],a:0,e:"첫날에는 limpia, cómoda, apropiada 한 옷으로 좋은 인상을 줍니다."},
+{t:"mc",q:"Hace viento y fresco en primavera. ¿Qué te pones para salir?",o:["una chaqueta fina y unos vaqueros","un abrigo de nieve","un bañador","unas chanclas"],a:0,e:"선선한 봄바람에는 얇은 재킷."},
+{t:"mc",q:"Vas a una cita romántica en un restaurante tranquilo. ¿Qué eliges?",o:["una camisa o blusa bonita y zapatos elegantes","un chándal viejo","unas chanclas","un impermeable amarillo"],a:0,e:"데이트에는 bonito y elegante 하지만 부담스럽지 않은 차림."},
+{t:"mc",q:"Trabajas de voluntario limpiando la playa. ¿Qué eliges?",o:["ropa vieja, cómoda y unas botas de agua o zapatillas","un traje de seda","tacones","una corbata"],a:0,e:"활동적인 일이라 cómoda y práctica 한 옷이 알맞습니다."},
+{t:"mc",q:"Vas a esquiar. ¿Qué ropa es imprescindible?",o:["ropa abrigada e impermeable, guantes y gorro","un bañador","unas sandalias","un vestido de verano"],a:0,e:"스키: abrigada, impermeable. imprescindible = 꼭 필요한."},
+{t:"mc",q:"Tienes una fiesta de fin de curso en la piscina. ¿Qué llevas?",o:["un bañador, una toalla y chanclas","un traje y una corbata","botas de nieve","un abrigo"],a:0,e:"수영장 파티: 수영복, 수건, 슬리퍼."}
+];
+
+var Q_WHY = [
+{t:"mc",q:"Me pongo un abrigo grueso porque ...",o:["hace mucho frío","hace mucho calor","voy a la playa","es verano"],a:0,e:"두꺼운 코트의 이유는 추운 날씨."},
+{t:"mc",q:"Elijo unas gafas de sol porque ...",o:["nieva","hace mucho sol","llueve mucho","es de noche"],a:1,e:"선글라스는 햇빛이 강할 때."},
+{t:"mc",q:"Llevo un paraguas porque ...",o:["llueve","hace calor","es mi cumpleaños","tengo sed"],a:0,e:"우산은 비가 올 때."},
+{t:"mc",q:"Elijo zapatillas deportivas porque ...",o:["son cómodas para caminar","son muy formales","son de tacón alto","no tienen suela"],a:0,e:"운동화의 장점은 cómodas."},
+{t:"mc",q:"Me pongo un traje porque ...",o:["la entrevista es formal","voy a nadar","hace mucho calor en la playa","voy a jugar al fútbol"],a:0,e:"정장은 격식 있는 자리."},
+{t:"mc",q:"Elijo una camiseta de algodón porque ...",o:["es fresca y ligera","es muy gruesa","es impermeable","es de lana"],a:0,e:"면 티셔츠: fresca y ligera."},
+{t:"mc",q:"Necesito botas impermeables porque ...",o:["la nieve moja los pies","hace mucho calor","voy a la playa","quiero bailar"],a:0,e:"방수 부츠는 눈·물에 발이 젖는 것을 막기 위해."},
+{t:"mc",q:"Llevo una chaqueta en la mochila por si ...",o:["hace frío por la noche","es verano","estoy en casa","llevo un bañador"],a:0,e:"por si = ~할 경우를 대비해서."},
+{t:"mc",q:"Prefiero zapatos de tacón bajo porque ...",o:["son más cómodos para bailar","son muy incómodos","son para la playa","son de nieve"],a:0,e:"굽 낮은 구두는 춤출 때 더 편합니다."},
+{t:"mc",q:"Elijo el vestido azul porque ...",o:["me queda muy bien","no me queda bien","está roto","es demasiado pequeño"],a:0,e:"me queda bien = 나에게 잘 어울린다."},
+{t:"mc",q:"Elijo unos vaqueros porque son ...",o:["informales y cómodos","muy formales","muy abrigados para la playa","impermeables"],a:0,e:"청바지는 캐주얼하고 편안합니다."},
+{t:"mc",q:"Llevo un sombrero ... el sol es muy fuerte.",o:["porque","por qué","por que","porqué"],a:0,e:"이유를 말할 때는 porque (한 단어, 악센트 없음)."},
+{t:"mc",q:"Hace frío, ... me pongo un abrigo. (그래서)",o:["por eso","porque","pero","también"],a:0,e:"por eso = 그래서 (결과)."},
+{t:"mc",q:"Me gusta la chaqueta, ... es muy cara. (하지만)",o:["pero","porque","además","por eso"],a:0,e:"대조 연결어 pero."},
+{t:"mc",q:"Elijo la camisa blanca. ... , llevo una corbata azul. (또한)",o:["Además","Pero","Por qué","Sin embargo"],a:0,e:"추가 연결어: además / también."},
+{t:"mc",q:"... voy a estar sentado muchas horas, prefiero ropa ancha. (~니까)",o:["Como","Pero","Aunque","Entonces"],a:0,e:"문장 맨 앞에서 이유를 말할 때 como."},
+{t:"mc",q:"Llevo un paraguas ... no mojarme. (~하기 위해)",o:["para","porque","pero","por"],a:0,e:"para + 동사원형 = 목적."},
+{t:"mc",q:"Primero me pongo la camisa; ... , los pantalones. (그다음에)",o:["luego","porque","sin embargo","aunque"],a:0,e:"순서 표현: primero → luego → finalmente."},
+{t:"mc",q:"가장 자연스러운 마무리 문장은?",o:["Por eso, voy a estar cómodo y elegante.","Por eso, es el calor.","Porque, voy a estar cómodo.","Pero, me gusta el abrigo porque."],a:0,e:"Por eso 다음에는 결과를 말합니다."},
+{t:"mc",q:"가장 좋은 이유 문장은?",o:["Elijo botas porque son abrigadas y no dejan pasar el agua.","Elijo botas porque botas.","Elijo botas porque sí.","Elijo botas y luego."],a:0,e:"구체적인 이유(특징)를 말해야 점수가 높습니다."}
+];
+
+var Q_ORDER = [
+{t:"order",w:["Me","pongo","un","abrigo","porque","hace","frío"],a:["Me pongo un abrigo porque hace frío"],ko:"추워서 코트를 입어요."},
+{t:"order",w:["Elijo","la","camisa","blanca","porque","es","elegante"],a:["Elijo la camisa blanca porque es elegante"],ko:"우아해서 흰 셔츠를 골라요."},
+{t:"order",w:["Voy","a","ponerme","un","traje","para","la","entrevista"],a:["Voy a ponerme un traje para la entrevista"],ko:"면접을 위해 정장을 입을 거예요."},
+{t:"order",w:["Llevo","unas","gafas","de","sol","porque","hace","mucho","sol"],a:["Llevo unas gafas de sol porque hace mucho sol"],ko:"해가 강해서 선글라스를 써요."},
+{t:"order",w:["Además","las","botas","son","muy","cómodas"],a:["Además las botas son muy cómodas"],ko:"게다가 부츠는 아주 편해요."},
+{t:"order",w:["Por","eso","no","llevo","pantalones","cortos"],a:["Por eso no llevo pantalones cortos"],ko:"그래서 반바지는 입지 않아요."},
+{t:"order",w:["Primero","me","pongo","los","vaqueros","después","la","camiseta"],a:["Primero me pongo los vaqueros después la camiseta","Primero me pongo los vaqueros y después la camiseta"],ko:"먼저 청바지, 그다음 티셔츠를 입어요."},
+{t:"order",w:["Prefiero","los","zapatos","negros","porque","combinan","con","todo"],a:["Prefiero los zapatos negros porque combinan con todo"],ko:"모든 것과 어울려서 검은 구두가 좋아요."},
+{t:"order",w:["Este","vestido","me","queda","muy","bien"],a:["Este vestido me queda muy bien"],ko:"이 원피스는 나에게 아주 잘 어울려요."},
+{t:"order",w:["Los","guantes","son","necesarios","porque","nieva","mucho"],a:["Los guantes son necesarios porque nieva mucho"],ko:"눈이 많이 와서 장갑이 필요해요."},
+{t:"order",w:["Mi","hermana","se","pone","una","falda","larga","para","la","boda"],a:["Mi hermana se pone una falda larga para la boda"],ko:"내 여동생은 결혼식에 긴 치마를 입어요."},
+{t:"order",w:["En","verano","llevo","ropa","ligera","y","fresca"],a:["En verano llevo ropa ligera y fresca"],ko:"여름에는 가볍고 시원한 옷을 입어요."},
+{t:"order",w:["Necesito","un","impermeable","porque","llueve","mucho","hoy"],a:["Necesito un impermeable porque llueve mucho hoy"],ko:"오늘 비가 많이 와서 레인코트가 필요해요."},
+{t:"order",w:["Elijo","una","chaqueta","de","cuero","porque","es","moderna"],a:["Elijo una chaqueta de cuero porque es moderna"],ko:"현대적이라서 가죽 재킷을 골라요."}
+];
+
+var Q_ERR = [
+{t:"mc",q:"맞는 문장은?",o:["Hace frío, por eso me pongo un abrigo.","Es frío, por eso me pongo un abrigo.","Hago frío, por eso me pongo un abrigo.","Está frío, por eso me pongo un abrigo."],a:0,e:"날씨 표현은 hacer: Hace frío."},
+{t:"mc",q:"맞는 문장은?",o:["Llevo una camisa blanco.","Llevo una camisa blanca.","Llevo un camisa blanca.","Llevo una camisa blancos."],a:1,e:"la camisa(여성 단수) → una camisa blanca."},
+{t:"mc",q:"맞는 문장은?",o:["Elijo el vestido por que es bonito.","Elijo el vestido porqué es bonito.","Elijo el vestido porque es bonito.","Elijo el vestido por qué es bonito."],a:2,e:"이유를 말할 때는 porque."},
+{t:"mc",q:"맞는 문장은?",o:["Los zapatos son cómodo.","Las zapatos son cómodos.","Los zapatos es cómodos.","Los zapatos son cómodos."],a:3,e:"복수 남성: los zapatos son cómodos."},
+{t:"mc",q:"맞는 문장은?",o:["Yo me pone una chaqueta.","Yo me pongo una chaqueta.","Yo se pongo una chaqueta.","Yo me pones una chaqueta."],a:1,e:"yo me pongo."},
+{t:"mc",q:"맞는 문장은?",o:["La abrigo es grueso.","El abrigo es gruesa.","El abrigo es grueso.","La abrigo es gruesa."],a:2,e:"el abrigo는 남성 단수 → grueso."},
+{t:"mc",q:"맞는 문장은?",o:["Soy cómodo con estas zapatillas.","Estoy cómodo con estas zapatillas.","Estoy cómodos con estas zapatillas.","Está cómodo con estas zapatillas (yo)."],a:1,e:"내 상태는 estar: Estoy cómodo."},
+{t:"mc",q:"맞는 문장은?",o:["Mis amigos se pone chaquetas.","Mis amigos se ponen chaquetas.","Mis amigos me ponen chaquetas.","Mis amigos nos ponemos chaquetas."],a:1,e:"3인칭 복수: se ponen."},
+{t:"mc",q:"맞는 문장은?",o:["Yo elego una camiseta.","Yo elige una camiseta.","Yo elijes una camiseta.","Yo elijo una camiseta."],a:3,e:"elegir의 yo형은 elijo."},
+{t:"mc",q:"맞는 문장은?",o:["Hace mucho calor, por qué llevo ropa ligera.","Hace mucho calor, por eso llevo ropa ligera.","Hace mucho calor, pero eso llevo ropa ligera.","Hace mucho calor, porque eso llevo ropa ligera."],a:1,e:"결과를 말할 때는 por eso."},
+{t:"mc",q:"맞는 문장은?",o:["Me gusta ponerme gafas de sol porque hace sol.","Me pongo gafas de sol porque es sol.","Me pongo gafas de sol porque soy sol.","Llevo gafas de sol porque tengo sol."],a:0,e:"날씨는 hace sol. 나머지는 모두 동사가 어색합니다."},
+{t:"mc",q:"맞는 문장은?",o:["Tengo calor por eso llevo ropa fresca.","Estoy calor, por eso llevo ropa fresca.","Soy calor, por eso llevo ropa fresca.","Hago calor, por eso llevo ropa fresca."],a:0,e:"사람이 덥다고 느낄 때: tener calor. (쉼표를 넣어 Tengo calor, por eso …)"}
+];
+</script>
+<script>
+(function(){
+"use strict";
+function $(s,r){return (r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function pick(a,n){return shuffle(a).slice(0,n)}
+var store={
+  get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+  set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+function normA(s){return String(s).toLowerCase().replace(/[¿?¡!.,;:]/g,"").replace(/\s+/g," ").trim()}
+function noAcc(s){return s.replace(/ñ/g,"\u0001").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\u0001/g,"ñ")}
+function stripHtml(s){return s.replace(/<[^>]+>/g,"")}
+
+/* ---------- tabs ---------- */
+var tabs=$$(".tab");
+function showTab(name){
+  tabs.forEach(function(t){t.setAttribute("aria-selected",t.dataset.tab===name?"true":"false")});
+  $$(".panel").forEach(function(p){p.hidden=(p.id!=="p-"+name)});
+}
+tabs.forEach(function(t){t.addEventListener("click",function(){showTab(t.dataset.tab);window.scrollTo(0,0)})});
+
+/* ---------- vocabulary ---------- */
+var vs={cat:"all",ko:false,hideKnown:false,order:VOCAB.map(function(_,i){return i}),flip:{}};
+var known=store.get("qmp.known",{});
+function renderVocabCats(){
+  var h='<button class="chip" data-c="all" aria-pressed="'+(vs.cat==="all")+'" type="button">전체</button>';
+  Object.keys(CATS).forEach(function(k){h+='<button class="chip" data-c="'+k+'" aria-pressed="'+(vs.cat===k)+'" type="button">'+CATS[k]+'</button>'});
+  $("#vcats").innerHTML=h;
+}
+function renderVocab(){
+  var h="",n=0,kn=0;
+  vs.order.forEach(function(i){
+    var v=VOCAB[i];
+    if(vs.cat!=="all"&&v[0]!==vs.cat)return;
+    n++;
+    var isK=!!known[v[1]];
+    if(isK)kn++;
+    if(vs.hideKnown&&isK)return;
+    var flipped=!!vs.flip[i];
+    var showKo=vs.ko?!flipped:flipped;
+    h+='<div class="tag'+(isK?' is-known':'')+'"><button class="face'+(showKo?' ko':'')+'" data-i="'+i+'" type="button">'+esc(showKo?v[2]:v[1])+'</button>'
+      +'<button class="known" data-k="'+i+'" type="button" aria-pressed="'+isK+'">'+(isK?'외웠어요':'외웠나요?')+'</button></div>';
+  });
+  $("#vgrid").innerHTML=h||'<p class="muted">표시할 카드가 없어요.</p>';
+  $("#vcount").textContent="외운 단어 "+kn+" / "+n;
+}
+$("#vcats").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;vs.cat=b.dataset.c;renderVocabCats();renderVocab()});
+$("#vgrid").addEventListener("click",function(e){
+  var f=e.target.closest(".face"),k=e.target.closest(".known");
+  if(f){var i=f.dataset.i;vs.flip[i]=!vs.flip[i];renderVocab()}
+  else if(k){var key=VOCAB[k.dataset.k][1];if(known[key])delete known[key];else known[key]=1;store.set("qmp.known",known);renderVocab()}
+});
+$("#vside").addEventListener("click",function(){vs.ko=!vs.ko;vs.flip={};this.textContent="앞면: "+(vs.ko?"한국어":"스페인어");renderVocab()});
+$("#vshuffle").addEventListener("click",function(){vs.order=shuffle(vs.order);renderVocab()});
+$("#vhideknown").addEventListener("click",function(){vs.hideKnown=!vs.hideKnown;this.setAttribute("aria-pressed",vs.hideKnown);this.textContent=vs.hideKnown?"외운 단어 보이기":"외운 단어 숨기기";renderVocab()});
+
+/* ---------- model answers ---------- */
+var ms={i:0};
+function markup(s){
+  return esc(s).replace(/\[\[([swc]):([\s\S]+?)\]\]/g,function(_,k,t){return '<span class="'+({s:"sel",w:"why",c:"con"}[k])+'">'+t+'</span>'});
+}
+function renderModelChips(){
+  $("#mchips").innerHTML=MODELS.map(function(m,i){return '<button class="chip" data-m="'+i+'" aria-pressed="'+(i===ms.i)+'" type="button">'+esc(m.es)+'</button>'}).join("");
+}
+function renderModel(){
+  var m=MODELS[ms.i];
+  $("#mtitle").textContent=m.es;
+  $("#mko").textContent=m.ko;
+  var a=$("#manswer");
+  a.innerHTML=markup(m.a);
+  a.classList.toggle("hide-why",$("#mhidewhy").getAttribute("aria-pressed")==="true");
+  a.classList.toggle("hide-sel",$("#mhidesel").getAttribute("aria-pressed")==="true");
+  $("#mtext").textContent=m.t;
+  $("#mnote").textContent=m.n||"";
+}
+function toggleBtn(id,on,onText,offText){var b=$(id);b.setAttribute("aria-pressed",on);b.textContent=on?onText:offText}
+$("#mchips").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;ms.i=+b.dataset.m;renderModelChips();renderModel()});
+$("#mhidewhy").addEventListener("click",function(){toggleBtn("#mhidewhy",this.getAttribute("aria-pressed")!=="true","이유 보이기","이유 가리기");renderModel()});
+$("#mhidesel").addEventListener("click",function(){toggleBtn("#mhidesel",this.getAttribute("aria-pressed")!=="true","옷 선택 보이기","옷 선택 가리기");renderModel()});
+$("#mtrans").addEventListener("click",function(){var on=this.getAttribute("aria-pressed")!=="true";toggleBtn("#mtrans",on,"번역 숨기기","한국어 번역 보기");$("#mtext").hidden=!on});
+$("#manswer").addEventListener("click",function(e){var s=e.target.closest(".why,.sel");if(s)s.classList.toggle("shown")});
+
+/* ---------- quiz ---------- */
+function vocabQs(dir,n){
+  var nouns=VOCAB.slice();
+  var qs=pick(nouns,n).map(function(v){
+    var same=VOCAB.filter(function(x){return x!==v&&x[0]===v[0]});
+    var rest=VOCAB.filter(function(x){return x!==v&&x[0]!==v[0]});
+    var pool=shuffle(same).concat(shuffle(rest));
+    var seen={},opts=[],q;
+    function txt(x){return dir==="es"?x[2].split(" (")[0]:x[1]}
+    seen[txt(v)]=1;
+    for(var k=0;k<pool.length&&opts.length<3;k++){var t=txt(pool[k]);if(!seen[t]){seen[t]=1;opts.push(t)}}
+    var all=[txt(v)].concat(opts);
+    if(dir==="es"){
+      q={t:"mc",q:v[1]+" 의 뜻은?",qh:'<span class="es">'+esc(v[1])+'</span> 의 뜻은?',o:all,a:0,e:v[1]+" = "+v[2]};
+    }else{
+      q={t:"mc",q:v[2].split(" (")[0]+" 에 해당하는 스페인어는?",qh:esc(v[2].split(" (")[0])+' 에 해당하는 스페인어는?',o:all,a:0,e:v[2].split(" (")[0]+" = "+v[1]};
+    }
+    return q;
+  });
+  return qs;
+}
+var SETS=[
+  {id:"v1",name:"어휘 · 스페인어 → 한국어",desc:"단어를 보고 뜻 고르기 (누를 때마다 새 문제)",n:20,mk:function(){return vocabQs("es",20)}},
+  {id:"v2",name:"어휘 · 한국어 → 스페인어",desc:"뜻을 보고 스페인어 고르기 (누를 때마다 새 문제)",n:20,mk:function(){return vocabQs("ko",20)}},
+  {id:"fill",name:"빈칸 채우기",desc:"동사 변화, 성·수 일치, 연결어",n:Q_FILL.length,mk:function(){return shuffle(Q_FILL)}},
+  {id:"sit",name:"상황에 맞는 옷 고르기",desc:"상황을 읽고 가장 알맞은 차림 선택",n:Q_SIT.length,mk:function(){return shuffle(Q_SIT)}},
+  {id:"why",name:"이유·연결어 고르기",desc:"왜 그 옷인지 알맞게 설명하기",n:Q_WHY.length,mk:function(){return shuffle(Q_WHY)}},
+  {id:"order",name:"문장 배열",desc:"단어를 눌러 문장 완성하기",n:Q_ORDER.length,mk:function(){return shuffle(Q_ORDER)}},
+  {id:"err",name:"맞는 문장 찾기",desc:"흔한 실수를 피하는 연습",n:Q_ERR.length,mk:function(){return shuffle(Q_ERR)}},
+  {id:"mock",name:"모의시험 (섞어서 26문항)",desc:"모든 유형을 한 번에 점검",n:26,mock:true,mk:function(){
+    return shuffle([].concat(vocabQs("es",3),vocabQs("ko",2),pick(Q_FILL,5),pick(Q_SIT,5),pick(Q_WHY,5),pick(Q_ORDER,3),pick(Q_ERR,3)));
+  }}
+];
+Q_ORDER.forEach(function(q){q.q="단어를 순서대로 눌러 문장을 완성하세요."});
+var run=null;
+function renderHome(){
+  var best=store.get("qmp.best",{});
+  $("#setlist").innerHTML=SETS.map(function(s,i){
+    var b=best[s.id];
+    return '<button class="setcard'+(s.mock?' mock':'')+'" data-s="'+i+'" type="button"><b>'+esc(s.name)+'</b><span>'+esc(s.desc)+'</span><span class="meta">'+s.n+'문항'+(b?' · 최고 '+b.pct+'%':'')+'</span></button>';
+  }).join("");
+}
+function startRun(set,qs,retry){
+  run={set:set,qs:qs,i:0,score:0,wrong:[],answered:false,retry:!!retry};
+  $("#qhome").hidden=true;$("#qrun").hidden=false;
+  renderQ();window.scrollTo(0,0);
+}
+function renderQ(){
+  var r=run;
+  if(r.i>=r.qs.length){renderResult();return}
+  var q=r.qs[r.i];
+  r.answered=false;
+  var h='<div class="bar"><button class="btn ghost" data-act="quit" type="button">그만하기</button></div>';
+  h+='<div class="qhead"><span>'+esc(r.set.name)+(r.retry?' (틀린 문제)':'')+'</span><span>'+(r.i+1)+' / '+r.qs.length+'</span></div>';
+  h+='<div class="progress"><i style="width:'+(r.i/r.qs.length*100)+'%"></i></div><div class="box">';
+  h+='<p class="q">'+(q.qh||esc(q.q))+'</p>';
+  if(q.t==="mc"){
+    q._opts=shuffle(q.o.map(function(t,i){return {t:t,c:i===q.a}}));
+    h+='<div class="opts">'+q._opts.map(function(o,i){return '<button class="opt" data-o="'+i+'" type="button">'+esc(o.t)+'</button>'}).join("")+'</div>';
+  }else if(q.t==="fill"){
+    h+='<div class="fillrow"><input id="qin" type="text" lang="es" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="정답 입력"><button class="btn" data-act="check" type="button">확인</button></div>';
+  }else{
+    q._bank=shuffle(q.w.map(function(w,i){return {w:w,used:false}}));
+    q._ans=[];
+    h+='<p class="muted">'+esc(q.ko)+'</p><div class="line" id="qline" aria-live="polite"></div><div class="bank" id="qbank"></div><div class="bar"><button class="btn" data-act="check" type="button">확인</button><button class="btn ghost" data-act="reset" type="button">지우기</button></div>';
+  }
+  h+='<div id="qfb"></div></div>';
+  $("#qrun").innerHTML=h;
+  if(q.t==="order")drawOrder(q);
+  if(q.t==="fill"){var inp=$("#qin");inp.focus();inp.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();checkAnswer()}})}
+}
+function drawOrder(q){
+  $("#qline").innerHTML=q._ans.length?q._ans.map(function(b,k){return '<button class="wchip" data-r="'+k+'" type="button">'+esc(b.w)+'</button>'}).join(""):'<span class="muted">단어를 눌러 문장을 만드세요</span>';
+  $("#qbank").innerHTML=q._bank.map(function(b,k){return '<button class="wchip" data-b="'+k+'" type="button"'+(b.used?' disabled':'')+'>'+esc(b.w)+'</button>'}).join("");
+}
+function answerText(q){return q.t==="mc"?q.o[q.a]:q.a[0]}
+function finish(ok,msg){
+  var r=run,q=r.qs[r.i];
+  if(r.answered)return;
+  r.answered=true;
+  if(ok)r.score++;else r.wrong.push(q);
+  var last=r.i===r.qs.length-1;
+  var fb='<div class="feedback '+(ok?'ok':'no')+'"><b>'+(ok?'정답!':'아쉬워요')+'</b>'+msg+'</div><div class="bar"><button class="btn" data-act="next" type="button">'+(last?'결과 보기':'다음 문제')+'</button></div>';
+  $("#qfb").innerHTML=fb;
+  var nx=$('[data-act="next"]');if(nx)nx.focus();
+}
+function checkAnswer(){
+  var r=run,q=r.qs[r.i];
+  if(!q||r.answered)return;
+  if(q.t==="fill"){
+    var val=normA($("#qin").value);
+    if(!val){$("#qin").focus();return}
+    var exact=q.a.some(function(a){return normA(a)===val});
+    var loose=q.a.some(function(a){return noAcc(normA(a))===noAcc(val)});
+    $("#qin").disabled=true;
+    if(exact)finish(true,esc(q.e));
+    else if(loose)finish(true,'악센트를 확인하세요. 정확한 표기: <b>'+esc(q.a[0])+'</b><br>'+esc(q.e));
+    else finish(false,'정답: <b>'+esc(q.a[0])+'</b><br>'+esc(q.e));
+  }else if(q.t==="order"){
+    if(!q._ans.length)return;
+    var user=normA(q._ans.map(function(b){return b.w}).join(" "));
+    var ok=q.a.some(function(a){return normA(a)===user});
+    $$("#qrun .wchip").forEach(function(b){b.disabled=true});
+    finish(ok,ok?esc(q.ko):'정답: <b>'+esc(q.a[0])+'.</b><br>'+esc(q.ko));
+  }
+}
+function chooseOpt(i){
+  var r=run,q=r.qs[r.i];
+  if(r.answered)return;
+  var o=q._opts[i];
+  $$("#qrun .opt").forEach(function(b,k){
+    b.disabled=true;
+    if(q._opts[k].c)b.classList.add("right");
+    else if(k===i)b.classList.add("wrong");
+  });
+  finish(o.c,esc(q.e||""));
+}
+function renderResult(){
+  var r=run,total=r.qs.length,pct=Math.round(r.score/total*100);
+  if(!r.retry){
+    var best=store.get("qmp.best",{});
+    if(!best[r.set.id]||pct>best[r.set.id].pct){best[r.set.id]={pct:pct,score:r.score,total:total};store.set("qmp.best",best)}
+  }
+  var msg=pct>=90?"훌륭해요! 시험 준비가 잘 되어 있어요.":pct>=70?"좋아요. 틀린 문제만 한 번 더 풀어 보세요.":"괜찮아요. 해설을 읽고 다시 도전하면 금방 늘어요.";
+  var h='<div class="box"><p class="muted">'+esc(r.set.name)+'</p><p class="score">'+r.score+' / '+total+'</p><p><b>'+pct+'%</b> · '+msg+'</p>';
+  if(r.wrong.length){
+    h+='<h3>다시 볼 문제</h3><ul class="review">'+r.wrong.map(function(q){return '<li>'+esc(stripHtml(q.qh||q.q))+'<br><b>정답:</b> '+esc(answerText(q))+'</li>'}).join("")+'</ul>';
+  }
+  h+='<div class="bar">';
+  if(r.wrong.length)h+='<button class="btn" data-act="retrywrong" type="button">틀린 문제만 다시</button>';
+  h+='<button class="btn ghost" data-act="again" type="button">새로 시작</button><button class="btn ghost" data-act="home" type="button">목록으로</button></div></div>';
+  $("#qrun").innerHTML=h;
+  window.scrollTo(0,0);
+}
+function goHome(){run=null;$("#qrun").hidden=true;$("#qhome").hidden=false;renderHome()}
+$("#setlist").addEventListener("click",function(e){var b=e.target.closest(".setcard");if(!b)return;var s=SETS[+b.dataset.s];startRun(s,s.mk(),false)});
+$("#qrun").addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b||!run)return;
+  if(b.dataset.o!==undefined){chooseOpt(+b.dataset.o);return}
+  var q=run.qs[run.i];
+  if(b.dataset.b!==undefined&&q){var it=q._bank[+b.dataset.b];if(!it.used&&!run.answered){it.used=true;q._ans.push(it);drawOrder(q)}return}
+  if(b.dataset.r!==undefined&&q){if(run.answered)return;var k=+b.dataset.r;var rem=q._ans.splice(k,1)[0];rem.used=false;drawOrder(q);return}
+  var act=b.dataset.act;
+  if(act==="check")checkAnswer();
+  else if(act==="reset"&&q&&!run.answered){q._ans=[];q._bank.forEach(function(x){x.used=false});drawOrder(q)}
+  else if(act==="next"){run.i++;renderQ();window.scrollTo(0,0)}
+  else if(act==="quit"||act==="home")goHome();
+  else if(act==="again")startRun(run.set,run.set.mk(),false);
+  else if(act==="retrywrong")startRun(run.set,shuffle(run.wrong),true);
+});
+
+/* ---------- writing ---------- */
+var CLOTH={};
+VOCAB.forEach(function(v){
+  if(["ropa","calzado","acc"].indexOf(v[0])<0)return;
+  var c=v[1].replace(/^(el|la|los|las) /,"");
+  if(c==="ropa de deporte")return;
+  CLOTH[noAcc(c.toLowerCase()).split(" ")[0].slice(0,6)]=1;
+});
+CLOTH.jersey=1;CLOTH.tacone=1;
+var ADJ=["comod","elega","forma","infor","abrig","fresc","liger","grues","ajust","anch","larg","cort","depor","imper","limpi","llama","aprop","pract","bonit","calid","senci","moder","resis","guap"];
+var CONN=["primero","luego","despues","ademas","tambien","por eso","finalmente","por ultimo","pero","sin embargo","en cambio","en conclusion","ya que","asi"];
+var SELV=["me pongo","voy a ponerme","me voy a poner","llevo","voy a llevar","elijo","prefiero","se pone","nos ponemos","llevamos"];
+var MASC="abrigo|traje|pantalon|sombrero|bolso|cinturon|paraguas|impermeable|reloj|sueter|jersey|vestido|gorro|collar|anillo|panuelo|bikini|pijama|banador|chandal|uniforme";
+var FEM="camisa|camiseta|falda|chaqueta|blusa|corbata|bufanda|gorra|mochila|sudadera|cartera|pulsera|ropa";
+function normW(s){return " "+noAcc(s.toLowerCase()).replace(/[¿?¡!.,;:()"“”]/g," ").replace(/\s+/g," ").trim()+" "}
+var ws={i:0};
+function writeById(id){for(var i=0;i<WRITE.length;i++)if(WRITE[i].id===id)return WRITE[i]}
+function renderWrite(){
+  var w=WRITE[ws.i];
+  $("#wsel").value=String(ws.i);
+  $("#wprompt").innerHTML='<b class="es">'+esc(w.es)+'</b><br><span class="muted">'+esc(w.ko)+'</span>';
+  $("#whints").innerHTML=w.hint.map(function(h){return '<span>'+esc(h)+'</span>'}).join("");
+  $("#wtext").value=store.get("qmp.draft."+w.id,"");
+  $("#wmodelbox").hidden=true;$("#wmodel").setAttribute("aria-pressed","false");$("#wmodel").textContent="모범답안 보기";
+  analyze();
+}
+function analyze(){
+  var raw=$("#wtext").value,t=normW(raw),trimmed=raw.trim();
+  var words=trimmed?trimmed.split(/\s+/).length:0;
+  $("#wcount").textContent=words+"단어 (목표 40단어 이상)";
+  var tokens=t.trim().split(" ").filter(Boolean);
+  var cl={};tokens.forEach(function(x){if(CLOTH[x.slice(0,6)])cl[x.slice(0,6)]=1});
+  var nCl=Object.keys(cl).length;
+  var aj={};tokens.forEach(function(x){ADJ.forEach(function(s){if(x.indexOf(s)===0)aj[s]=1})});
+  var nAj=Object.keys(aj).length;
+  var nCo=CONN.filter(function(p){return t.indexOf(" "+p+" ")>=0}).length;
+  var nWhy=(t.split(" porque ").length-1)+(t.split(" ya que ").length-1);
+  var hasSel=SELV.some(function(p){return t.indexOf(" "+p+" ")>=0});
+  var head=t.slice(0,140);
+  var hasSit=/ (hace|llueve|nieva|voy|tengo|manana|hoy|esta noche|este|esta|hacemos|vamos|es) /.test(head)&&trimmed.length>0;
+  var tail=t.slice(-150);
+  var hasEnd=/ (por eso|en conclusion|por ultimo|asi|voy a estar|voy a sentirme|me siento|voy a pasar) /.test(tail)&&trimmed.length>0;
+  var okPunct=trimmed.length>0&&/^[¿¡]?[A-ZÁÉÍÓÚÑ]/.test(trimmed)&&/[.!?]$/.test(trimmed);
+  var items=[
+    [hasSit,"상황을 먼저 언급했다","Hoy hace… / Mañana tengo… 로 시작하세요."],
+    [hasSel,"옷을 고르는 표현을 썼다","Me pongo / Voy a ponerme / Llevo / Elijo"],
+    [nCl>=3,"옷·소품 어휘 3개 이상 ("+nCl+"개)","신발과 소품까지 넣으면 어휘 점수가 올라요."],
+    [nWhy>=2,"이유를 2번 이상 설명했다 ("+nWhy+"번)","porque / ya que 를 옷마다 쓰세요."],
+    [nCo>=3,"연결어 3개 이상 ("+nCo+"개)","además, también, por eso, primero …"],
+    [nAj>=2,"형용사 2개 이상 ("+nAj+"개)","cómodo, elegante, ligero, abrigado …"],
+    [hasEnd,"마무리 문장이 있다","Por eso, voy a estar cómodo y elegante."],
+    [words>=40,"40단어 이상 ("+words+"단어)","옷 하나당 이유를 한 문장씩 더 써 보세요."],
+    [okPunct,"대문자로 시작하고 마침표로 끝난다","문장 끝 마침표와 ¿ ¡ 를 확인하세요."]
+  ];
+  var pass=items.filter(function(x){return x[0]}).length;
+  $("#wchecks").innerHTML=items.map(function(x){return '<li class="'+(x[0]?'pass':'')+'"><span class="mk">'+(x[0]?'✓':'○')+'</span><span>'+esc(x[1])+(x[0]?'':'<small>'+esc(x[2])+'</small>')+'</span></li>'}).join("")+'<li><span class="mk"></span><b>'+pass+' / '+items.length+' 항목 충족</b></li>';
+  var warns=[],low=raw.toLowerCase();
+  if(/\bpor que\b/.test(low))warns.push("<b>por que</b> → 이유를 말할 때는 <b>porque</b> (한 단어)");
+  if(/\bes (calor|frio|frío|sol|viento)\b/.test(low))warns.push("<b>Es calor / Es frío</b> → <b>Hace calor / Hace frío</b>");
+  if(/\bestoy (calor|frio|frío)\b/.test(low))warns.push("<b>Estoy calor</b> → <b>Tengo calor</b>");
+  var re1=new RegExp(" (la|una|esta) ("+MASC+") ","g"),re2=new RegExp(" (el|un|este) ("+FEM+") ","g"),m;
+  while((m=re1.exec(t))!==null){warns.push("<b>"+esc(m[1]+" "+m[2])+"</b> → 남성 명사입니다 (el / un / este)");re1.lastIndex--}
+  while((m=re2.exec(t))!==null){warns.push("<b>"+esc(m[1]+" "+m[2])+"</b> → 여성 명사입니다 (la / una / esta)");re2.lastIndex--}
+  $("#wwarn").innerHTML=warns.length?'<div class="warn"><b>확인해 보세요</b><br>'+warns.slice(0,5).join("<br>")+'</div>':"";
+}
+$("#wsel").innerHTML=WRITE.map(function(w,i){return '<option value="'+i+'">'+esc(w.es)+'</option>'}).join("");
+$("#wsel").addEventListener("change",function(){ws.i=+this.value;renderWrite()});
+$("#wrand").addEventListener("click",function(){var n;do{n=Math.floor(Math.random()*WRITE.length)}while(n===ws.i&&WRITE.length>1);ws.i=n;renderWrite()});
+$("#wtext").addEventListener("input",function(){store.set("qmp.draft."+WRITE[ws.i].id,this.value);analyze()});
+$("#wclear").addEventListener("click",function(){$("#wtext").value="";store.set("qmp.draft."+WRITE[ws.i].id,"");analyze();$("#wtext").focus()});
+$("#wmodel").addEventListener("click",function(){
+  var on=this.getAttribute("aria-pressed")!=="true";
+  this.setAttribute("aria-pressed",on);this.textContent=on?"모범답안 숨기기":"모범답안 보기";
+  var box=$("#wmodelbox"),id=WRITE[ws.i].id,mm=null;
+  MODELS.forEach(function(m){if(m.id===id)mm=m});
+  box.innerHTML=mm?'<p class="answer" style="font-size:1rem;line-height:1.8">'+markup(mm.a)+'</p><p class="muted">'+esc(mm.t)+'</p>':'<p class="muted">이 상황은 모범답안이 없어요. 구조 탭의 4단계 틀(상황 → 옷 → 이유 → 마무리)로 써 보세요.</p>';
+  box.hidden=!on;
+});
+
+/* ---------- init ---------- */
+renderVocabCats();renderVocab();
+renderModelChips();renderModel();
+renderHome();
+renderWrite();
+})();
+</script>
+</body>
+</html>
